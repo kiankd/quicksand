@@ -1,5 +1,5 @@
 import numpy as np 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
@@ -66,20 +66,20 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, num_c
 
 	clfs = []
 
-	clf = nn_classifier(feature_dim=train_tweets.shape[1], num_classes=num_classes)
-	clfs.append(clf)
+	# clf = nn_classifier(feature_dim=train_tweets.shape[1], num_classes=num_classes)
+	# clfs.append(clf)
 
 	clf = LogisticRegression()
 	clfs.append(clf)
 
-	clf = KNeighborsClassifier(n_neighbors=1)
+	clf = KNeighborsClassifier(n_neighbors=5)
 	clfs.append(clf)
 
 	clf = LinearSVC()
 	clfs.append(clf)
 
-	clf = GaussianNB()
-	clfs.append(clf)
+	# clf = GaussianNB()
+	# clfs.append(clf)
 
 	clf = DecisionTreeClassifier()
 	clfs.append(clf)
@@ -91,10 +91,10 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, num_c
 	for clf in clfs:
 		clf.fit(train_tweets, train_labels)
 		pred_labels = clf.predict(test_tweets)
-		score = accuracy_score(test_labels, pred_labels)
+		score = classification_report(test_labels, pred_labels, digits=3)
 		scores.append(scores)
 		print(clf)
-		print("Accuracy: %f" % (score))
+		print(score)
 		print("------------------------------------")
 
 	return scores 

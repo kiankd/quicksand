@@ -1,0 +1,84 @@
+/home/ml/kkenyo1/anaconda3/bin/python /home/ml/kkenyo1/quicksand/quicksand/quicksandpy/testing.py
+Fitting count vect...
+LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
+          intercept_scaling=1, max_iter=100, multi_class='ovr', n_jobs=1,
+          penalty='l2', random_state=None, solver='liblinear', tol=0.0001,
+          verbose=0, warm_start=False)
+                        precision    recall  f1-score   support
+
+Companies_and_Products      0.979     0.944     0.961      1376
+                  Food      0.977     0.982     0.979      1377
+               General      0.683     0.811     0.741       371
+                 Media      0.966     0.972     0.969      1452
+                Sports      0.969     0.945     0.957      1424
+
+           avg / total      0.955     0.951     0.953      6000
+
+------------------------------------
+KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski',
+           metric_params=None, n_jobs=1, n_neighbors=5, p=2,
+           weights='uniform')
+                        precision    recall  f1-score   support
+
+Companies_and_Products      0.772     0.780     0.776      1376
+                  Food      0.816     0.679     0.741      1377
+               General      0.174     0.650     0.274       371
+                 Media      0.889     0.627     0.736      1452
+                Sports      0.757     0.559     0.643      1424
+
+           avg / total      0.770     0.659     0.696      6000
+
+------------------------------------
+LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
+     intercept_scaling=1, loss='squared_hinge', max_iter=1000,
+     multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
+     verbose=0)
+                        precision    recall  f1-score   support
+
+Companies_and_Products      0.962     0.942     0.952      1376
+                  Food      0.973     0.978     0.975      1377
+               General      0.660     0.728     0.692       371
+                 Media      0.962     0.973     0.967      1452
+                Sports      0.959     0.936     0.947      1424
+
+           avg / total      0.945     0.943     0.944      6000
+
+------------------------------------
+DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
+            max_features=None, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=1, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, presort=False, random_state=None,
+            splitter='best')
+                        precision    recall  f1-score   support
+
+Companies_and_Products      0.954     0.943     0.948      1376
+                  Food      0.981     0.977     0.979      1377
+               General      0.659     0.698     0.678       371
+                 Media      0.964     0.973     0.968      1452
+                Sports      0.938     0.928     0.933      1424
+
+           avg / total      0.940     0.939     0.940      6000
+
+------------------------------------
+RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+            max_depth=None, max_features='auto', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=1, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+                        precision    recall  f1-score   support
+
+Companies_and_Products      0.932     0.943     0.937      1376
+                  Food      0.948     0.965     0.956      1377
+               General      0.660     0.566     0.610       371
+                 Media      0.949     0.949     0.949      1452
+                Sports      0.919     0.928     0.923      1424
+
+           avg / total      0.920     0.922     0.921      6000
+
+------------------------------------
+
+Process finished with exit code 0
+

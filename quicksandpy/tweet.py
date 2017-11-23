@@ -1,6 +1,8 @@
 """
 Simple file for storing tweet objects.
 """
+import numpy as np
+
 class Tweet(object):
     def __init__(self, tid, text, topic):
         self.tid = tid

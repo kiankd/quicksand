@@ -1,9 +1,19 @@
 import numpy as np
+from collections import defaultdict
+from quicksand.quicksandpy.classifier import test_classifiers
+from quicksand.quicksandpy.load_data import get_all_data
 from quicksand.quicksandpy.tweet import load_tweets
 from quicksand.quicksandpy.preprocessing import preprocess_tweets
-from collections import defaultdict
+
+
+def test_classifiers_basic():
+    trainx, trainy, testx, testy = get_all_data()
+    test_classifiers(trainx, testx, trainy, testy, 5)
+
 
 if __name__ == '__main__':
+    test_classifiers_basic()
+
     # test preprocessing on small data.
     if False:
         tweets = load_tweets('../../data/test_tweets.csv')
@@ -16,7 +26,7 @@ if __name__ == '__main__':
             print(tweet.corrected_tokens)
             print()
 
-    if True:
+    if False:
         # test loading all data
         all_tweets = load_tweets('../../data/tweets_final.csv')
         preprocess_tweets(all_tweets, verbose=False)
