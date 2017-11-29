@@ -13,6 +13,51 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 
+class HierClassifier(object):
+	def __init__(self):
+
+		self.cl1 = LogisticRegression()
+		self.cl2 = LogisticRegression()
+		self.cl3 = LogisticRegression()
+
+	def fit(self, train, labels):
+
+		labels1 = labels.copy()
+		nobj_ind = np.where(labels!="obj")[0]
+		labels1[nobj_ind] = "nobj"
+
+		train2 = train[nobj_ind]
+		labels2 = labels.copy()
+
+		ncom_ind = np.intersect1d(np.where(labels!="com")[0], np.where(labels!="obj")[0])
+		labels2[ncom_ind] = "ncom"
+		labels2 = labels2[nobj_ind]
+
+		train3 = train[ncom_ind]
+		labels3 = labels[ncom_ind]
+
+		self.cl1.fit(train, labels1)
+		self.cl2.fit(train2, labels2)
+		self.cl3.fit(train3, labels3)
+
+
+	def predict(self, test):
+
+		pred1 = self.cl1.predict(test)
+		pred2 = self.cl2.predict(test)
+		pred3 = self.cl3.predict(test)
+
+		obj_ind = np.where(pred1=="obj")[0]
+		com_ind = np.where(pred2=="com")[0]
+
+		hier_pred = pred3
+		hier_pred[com_ind] = "com"
+		hier_pred[obj_ind] = "obj"
+
+		return hier_pred
+
+
+
 class nn_model(nn.Module):
 	def __init__(self, feature_dim, num_classes):
 		super(nn_model, self).__init__()
@@ -69,10 +114,13 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, num_c
 	# clf = nn_classifier(feature_dim=train_tweets.shape[1], num_classes=num_classes)
 	# clfs.append(clf)
 
+	clf = HierClassifier()
+	clfs.append(clf)
+
 	clf = LogisticRegression()
 	clfs.append(clf)
 
-	clf = KNeighborsClassifier(n_neighbors=5)
+	clf = KNeighborsClassifier(n_neighbors=2)
 	clfs.append(clf)
 
 	clf = LinearSVC()
@@ -101,9 +149,9 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, num_c
 
 
 if __name__ == "__main__":
-	train_tweets = np.array([[1,1,1,1], [1,1,1,0]])
-	test_tweets = np.array([[0,0,0,0], [0,0,0,1]])
-	train_labels = np.array([1,0])
-	test_labels = np.array([0,1])
+	train_tweets = np.array([[1,1,1,1], [1,1,1,0], [1,0,1,0], [0,1,0,1]])
+	test_tweets = np.array([[0,0,0,0], [0,0,0,1], [1,0,1,0], [0,1,0,1]])
+	train_labels = np.array(["obj","com", "pos", "neg"])
+	test_labels = np.array(["com", "obj", "pos", "neg"])
 
 	test_classifiers(train_tweets, test_tweets, train_labels, test_labels, 2)
