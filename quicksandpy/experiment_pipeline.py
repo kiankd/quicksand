@@ -64,6 +64,12 @@ if __name__ == '__main__':
             vocab += tweet.corrected_tokens
         raw_load_and_extract_glove(vocab, EMB_SIZE, '../labelled_data/')
 
-    # feature extraction
+    # feature extraction and serialization
     if True:
         tweets = load_tweets_from_csv('../../data/f1209851.csv', serialize=True)
+
+    # testing
+    # if True:
+        # train_tweets = np.load('../labelled_data/train_tweets_with_labels.npy')
+        # test_tweets = np.load('../labelled_data/test_tweets_with_labels.npy')
+        # extract_features(train_tweets, test_tweets)
