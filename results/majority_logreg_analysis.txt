@@ -1,0 +1,83 @@
+Loading data...
+Analyzing results for model logreg with label setting majority...
+
+
+--DATASET STATISTICS--
+Gold Label Counts:
+	obj - 800
+	com - 164
+	pos - 213
+	neg - 213
+Predicted Label Counts:
+	obj - 900
+	neg - 194
+	com - 112
+	pos - 184
+Topic Counts:
+	Companies_and_Products - 1390
+
+
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.25      0.17      0.20       164
+        neg       0.50      0.46      0.48       213
+        obj       0.71      0.79      0.75       800
+        pos       0.48      0.41      0.44       213
+
+avg / total       0.59      0.61      0.59      1390
+
+
+Final F1-Accuracy: 0.5948768980269981
+Final normal Accuracy: 0.6100719424460431
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.5 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.13      0.29      0.18        45
+        neg       0.55      0.46      0.50       213
+        obj       0.76      0.79      0.78       800
+        pos       0.53      0.41      0.46       213
+
+avg / total       0.67      0.66      0.66      1271
+
+
+Final F1-Accuracy: 0.6577034522474497
+Final normal Accuracy: 0.6553894571203777
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.79 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.11      0.47      0.18        15
+        neg       0.63      0.55      0.59       136
+        obj       0.85      0.84      0.84       623
+        pos       0.61      0.50      0.55       132
+
+avg / total       0.77      0.74      0.75       906
+
+
+Final F1-Accuracy: 0.7509539132798385
+Final normal Accuracy: 0.739514348785872
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.99 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.07      1.00      0.13         2
+        neg       0.72      0.62      0.67        69
+        obj       0.91      0.87      0.89       391
+        pos       0.65      0.65      0.65        68
+
+avg / total       0.85      0.81      0.83       530
+
+
+Final F1-Accuracy: 0.8260796645702306
+Final normal Accuracy: 0.809433962264151
