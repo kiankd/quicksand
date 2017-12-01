@@ -182,7 +182,7 @@ def feature_ablation(train, test, model, label_setting):
     print('Best accuracy: {}\nwith features: {}\n'.format(best_acc_feats[0], best_acc_feats[1]))
 
 # results analyzing
-def analyze_results(fname):
+def analyze_results(all_tweets, fname):
     results = []
     with open(fname + '.csv', 'r') as csvf:
         reader = DictReader(csvf)
@@ -198,17 +198,25 @@ def analyze_results(fname):
         pred_label_counts[row['model_pred_label']] += 1
         topic_counts[row['topic']] += 1
 
+    # feature vector statistics
+    tweet = all_tweets[0]
+    feature_vect_sizes = {}
+    for feature in ALL_FEATURES:
+        feature_vect_sizes[feature] = len(tweet.get_feature_vector(selected_feats={feature}))
+    feature_vect_sizes['total'] = sum(feature_vect_sizes.values())
+
     datas = [
         (gold_label_counts, 'Gold Label Counts'),
         (pred_label_counts, 'Predicted Label Counts'),
         (topic_counts, 'Topic Counts'),
+        (feature_vect_sizes, 'Length of Feature Vectors')
     ]
 
     print('\n\n--DATASET STATISTICS--')
     for d, name in datas:
-        print('{}:'.format(name))
+        print('\n{}:'.format(name))
         for key, value in d.items():
-            print('\t{} - {}'.format(key, value))
+            print('  {} - {}'.format(key, value))
     print('\n')
 
     # now get results over the different levels of agreement
@@ -284,7 +292,7 @@ if __name__ == '__main__':
 
     if args.analyze:
         print('Analyzing results for model {} with label setting {}...'.format(args.model, label_setting))
-        analyze_results(get_loo_results_fname(args.model, label_setting))
+        analyze_results(train + test, get_loo_results_fname(args.model, label_setting))
     elif args.ablation:
         feature_ablation(train, test, model, label_setting)
     elif args.initialize:
