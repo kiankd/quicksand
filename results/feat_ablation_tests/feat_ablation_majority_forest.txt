@@ -1,0 +1,237 @@
+Loading data...
+Feature ablation results:
+
+
+TEST SET RESULTS USING FEATURE SET {'swn', 'swn_wemb', 'bigrams', 'wemb', 'unigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.18      0.07      0.10        29
+        neg       0.50      0.29      0.37        45
+        obj       0.63      0.92      0.75       156
+        pos       0.64      0.19      0.29        48
+
+avg / total       0.57      0.60      0.54       278
+
+
+Final F1-Accuracy: 0.5417979861119604
+Final normal Accuracy: 0.60431654676259
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'unigrams', 'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.15      0.07      0.10        29
+        neg       0.45      0.11      0.18        45
+        obj       0.60      0.90      0.72       156
+        pos       0.53      0.21      0.30        48
+
+avg / total       0.52      0.57      0.50       278
+
+
+Final F1-Accuracy: 0.4950988712517299
+Final normal Accuracy: 0.5683453237410072
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'wemb', 'unigrams', 'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.33      0.14      0.20        29
+        neg       0.25      0.09      0.13        45
+        obj       0.59      0.92      0.72       156
+        pos       0.44      0.08      0.14        48
+
+avg / total       0.48      0.56      0.47       278
+
+
+Final F1-Accuracy: 0.470071545220918
+Final normal Accuracy: 0.5575539568345323
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb', 'swn'}:
+
+             precision    recall  f1-score   support
+
+        com       0.15      0.10      0.12        29
+        neg       0.38      0.24      0.30        45
+        obj       0.61      0.85      0.71       156
+        pos       0.38      0.10      0.16        48
+
+avg / total       0.49      0.54      0.49       278
+
+
+Final F1-Accuracy: 0.48743859231983044
+Final normal Accuracy: 0.5431654676258992
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb', 'wemb', 'bigrams', 'unigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.19      0.10      0.13        29
+        neg       0.41      0.29      0.34        45
+        obj       0.63      0.85      0.72       156
+        pos       0.42      0.17      0.24        48
+
+avg / total       0.51      0.56      0.51       278
+
+
+Final F1-Accuracy: 0.5134609427333172
+Final normal Accuracy: 0.5611510791366906
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn'}:
+
+             precision    recall  f1-score   support
+
+        com       0.35      0.24      0.29        29
+        neg       0.30      0.27      0.28        45
+        obj       0.61      0.77      0.68       156
+        pos       0.32      0.15      0.20        48
+
+avg / total       0.48      0.53      0.49       278
+
+
+Final F1-Accuracy: 0.49264472302982665
+Final normal Accuracy: 0.5251798561151079
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'wemb', 'unigrams', 'swn', 'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.21      0.14      0.17        29
+        neg       0.45      0.22      0.30        45
+        obj       0.63      0.92      0.75       156
+        pos       0.70      0.15      0.24        48
+
+avg / total       0.57      0.59      0.53       278
+
+
+Final F1-Accuracy: 0.5264145239912932
+Final normal Accuracy: 0.5899280575539568
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb'}:
+
+             precision    recall  f1-score   support
+
+        com       0.00      0.00      0.00        29
+        neg       0.41      0.29      0.34        45
+        obj       0.63      0.85      0.72       156
+        pos       0.41      0.15      0.22        48
+
+avg / total       0.49      0.55      0.50       278
+
+
+Final F1-Accuracy: 0.4955080949082478
+Final normal Accuracy: 0.5467625899280576
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb', 'wemb', 'swn', 'unigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.06      0.03      0.04        29
+        neg       0.35      0.29      0.32        45
+        obj       0.63      0.85      0.72       156
+        pos       0.57      0.17      0.26        48
+
+avg / total       0.52      0.55      0.51       278
+
+
+Final F1-Accuracy: 0.5061953551174123
+Final normal Accuracy: 0.5539568345323741
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.11      0.03      0.05        29
+        neg       0.33      0.24      0.28        45
+        obj       0.63      0.87      0.73       156
+        pos       0.33      0.15      0.20        48
+
+avg / total       0.48      0.55      0.49       278
+
+
+Final F1-Accuracy: 0.4945638533134755
+Final normal Accuracy: 0.5539568345323741
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb', 'unigrams', 'swn', 'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.10      0.07      0.08        29
+        neg       0.36      0.20      0.26        45
+        obj       0.62      0.88      0.73       156
+        pos       0.54      0.15      0.23        48
+
+avg / total       0.51      0.56      0.50       278
+
+
+Final F1-Accuracy: 0.4986907194843771
+Final normal Accuracy: 0.5575539568345323
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'wemb'}:
+
+             precision    recall  f1-score   support
+
+        com       0.11      0.07      0.09        29
+        neg       0.29      0.18      0.22        45
+        obj       0.62      0.89      0.73       156
+        pos       0.43      0.06      0.11        48
+
+avg / total       0.48      0.55      0.47       278
+
+
+Final F1-Accuracy: 0.4726411298378419
+Final normal Accuracy: 0.5467625899280576
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'swn_wemb', 'wemb', 'swn', 'bigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.25      0.14      0.18        29
+        neg       0.46      0.36      0.40        45
+        obj       0.64      0.90      0.75       156
+        pos       0.40      0.04      0.08        48
+
+avg / total       0.53      0.59      0.51       278
+
+
+Final F1-Accuracy: 0.5149609692300069
+Final normal Accuracy: 0.5863309352517986
+-----------------------------
+
+TEST SET RESULTS USING FEATURE SET {'unigrams'}:
+
+             precision    recall  f1-score   support
+
+        com       0.23      0.10      0.14        29
+        neg       0.31      0.18      0.23        45
+        obj       0.64      0.85      0.73       156
+        pos       0.41      0.29      0.34        48
+
+avg / total       0.51      0.56      0.52       278
+
+
+Final F1-Accuracy: 0.5207088079453003
+Final normal Accuracy: 0.564748201438849
+-----------------------------
+
+
+
+BEST RESULTS:
+Best F1-accuracy: 0.5417979861119604
+with features: {'swn', 'swn_wemb', 'bigrams', 'wemb', 'unigrams'}
+
+Best accuracy: 0.60431654676259
+with features: {'swn', 'swn_wemb', 'bigrams', 'wemb', 'unigrams'}
+

@@ -9,6 +9,8 @@ POS_NEG_COM_KEY = 'is_the_sentiment_expressed_positive_or_negative_'
 IS_GOLD_KEY = '_golden'
 ID_KEY = '_unit_id'
 TWEET_ID = 'tweet_id'
+ALL_DATA_FILE = 'f1211086.csv'
+SMALL_DATA_FILE = 'f1209851.csv'
 
 # Labelling options
 MAJORITY_RULE = 'majority'
@@ -19,6 +21,7 @@ SOFTMAX = 'softmax'
 LOGISTIC_REGRESSION = 'logreg'
 HIERARCHICAL = 'hier_logreg'
 LINEAR_SVM = 'linearsvm'
+RANDOM_FOREST = 'forest'
 
 # feature sets
 UNIGRAMS = 'unigrams'

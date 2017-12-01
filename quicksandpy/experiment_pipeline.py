@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score
 from quicksand.quicksandpy.util import *
 from quicksand.quicksandpy.feature_extraction import extract_features
 from quicksand.quicksandpy.preprocessing import preprocess_tweets
-from quicksand.quicksandpy.classifier import LogisticRegression, HierClassifier, LinearSVC
+from quicksand.quicksandpy.classifier import LogisticRegression, HierClassifier, LinearSVC, RandomForestClassifier
 from quicksand.quicksandpy.tweet import Tweet
 
 # utility
@@ -29,7 +29,66 @@ def get_results(gold_labels, pred_labels):
     )
     return s
 
-# primary function
+def big_dataset_analysis(train, test):
+    all_d = train + test
+    data_and_names = [
+        (train, 'Random training set (80%'),
+        (test, 'Random testing set (20%)'),
+        (all_d, 'Full data set (100%)')
+    ]
+
+    first = True
+    for dataset, dname in data_and_names:
+        # first, print statistics of the data
+        majority_labels = defaultdict(lambda: 0)
+        complicated_labels = defaultdict(lambda: 0)
+        topic_counts = defaultdict(lambda: 0)
+        for tweet in dataset:
+            majority_labels[tweet.get_labelling(MAJORITY_RULE)] += 1
+            complicated_labels[tweet.get_labelling(MORE_COMPLICATED)] += 1
+            topic_counts[tweet.topic] += 1
+
+        # feature vector statistics
+        tweet = dataset[0]
+        feature_vect_sizes = {}
+        for feature in ALL_FEATURES:
+            feature_vect_sizes[feature] = len(tweet.get_feature_vector(selected_feats={feature}))
+        feature_vect_sizes['total'] = sum(feature_vect_sizes.values())
+
+        datas = [
+            (majority_labels, 'Majority Rule Labelling Counts'),
+            (complicated_labels, 'More Complicated Labelling Counts'),
+            (topic_counts, 'Topic Counts'),
+            (feature_vect_sizes, 'Length of Feature Vectors')
+        ]
+        if not first:
+            datas = datas[:-1]
+
+        print('\n\n--DATASET STATISTICS for **{}**--'.format(dname))
+        for d, name in datas:
+            print('\n{}:'.format(name))
+            for key, value in d.items():
+                print('  {} - {}'.format(key, value))
+        print('\n')
+
+        # now get results over the different levels of agreement
+        for percent_agreement in [0, 0.5, 0.79, 0.99]:
+            filtered_tweets = []
+            for tweet in dataset:
+                labelling = {}
+                for label in LABELS:
+                    labelling[label] = int(tweet.labelling[label])
+                total = sum(labelling.values())
+                if max(labelling.values()) / float(total) > percent_agreement:
+                    filtered_tweets.append(tweet)
+            print('Proportion of data with {} percent agreement:'.format(percent_agreement))
+            print('  {} out of {}; {} percent of the data.'.format(
+                len(filtered_tweets), len(dataset), float(len(filtered_tweets)) / len(dataset)
+            ))
+
+        first = False
+
+# loading functions
 def load_tweets_from_csv(fname, serialize=True):
     # Load the data into memory
     ids_to_content = defaultdict(lambda: [])
@@ -69,14 +128,14 @@ def load_tweets_from_csv(fname, serialize=True):
         train_tweets, test_tweets = train_test_split(tweets, test_size=0.2, shuffle=True, random_state=1917)
         print('Extracting features...')
         extract_features(train_tweets, test_tweets)
-        np.save('../labelled_data/train_tweets_with_labels.npy', np.array(train_tweets))
-        np.save('../labelled_data/test_tweets_with_labels.npy', np.array(test_tweets))
+        np.save('../labelled_data/train_tweets_with_labels_full.npy', np.array(train_tweets))
+        np.save('../labelled_data/test_tweets_with_labels_full.npy', np.array(test_tweets))
 
     return tweets
 
 def load_train_test():
-    train_tweets = np.load('../labelled_data/train_tweets_with_labels.npy')
-    test_tweets = np.load('../labelled_data/test_tweets_with_labels.npy')
+    train_tweets = np.load('../labelled_data/train_tweets_with_labels_full.npy')
+    test_tweets = np.load('../labelled_data/test_tweets_with_labels_full.npy')
     return list(train_tweets), list(test_tweets)
 
 # classification testing
@@ -181,6 +240,16 @@ def feature_ablation(train, test, model, label_setting):
     print('Best F1-accuracy: {}\nwith features: {}\n'.format(best_f1_feats[0], best_f1_feats[1]))
     print('Best accuracy: {}\nwith features: {}\n'.format(best_acc_feats[0], best_acc_feats[1]))
 
+def basic_testing(train, test, model, label_setting):
+    train_X = get_X(train, features=BEST_FEATURES)
+    train_y = get_y(train, label_setting=label_setting)
+    test_X = get_X(test, features=BEST_FEATURES)
+    test_y = get_y(test, label_setting=label_setting)
+
+    model.fit(train_X, train_y)
+    preds = model.predict(test_X)
+    return get_results(test_y, preds)
+
 # results analyzing
 def analyze_results(all_tweets, fname):
     results = []
@@ -237,19 +306,18 @@ def analyze_results(all_tweets, fname):
         print('\n\n\n--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > {} PERCENT AGREEMENT--'.format(percent_agreement))
         print(get_results(gold_labels, pred_labels))
 
-
 # initialization function
-def initialize(load_glove=False):
+def initialize(data_file, load_glove=False):
     # this is for initializing the data and getting word embeddings
     if load_glove:
-        tweets = load_tweets_from_csv('../../data/f1209851.csv', serialize=False)
+        tweets = load_tweets_from_csv('../../data/{}'.format(data_file), serialize=False)
         vocab = []
         for tweet in tweets:
             vocab += tweet.corrected_tokens
         raw_load_and_extract_glove(vocab, EMB_SIZE, '../labelled_data/')
 
     # feature extraction and serialization
-    load_tweets_from_csv('../../data/f1209851.csv', serialize=True)
+    load_tweets_from_csv('../../data/{}'.format(data_file), serialize=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -260,6 +328,10 @@ if __name__ == '__main__':
     parser.add_argument(
         'model', type=str,
         help='model that we will test with'
+    )
+    parser.add_argument(
+        '-t', '--testing', action='store_true',
+        help='do basic testing of models on train and test sets'
     )
     parser.add_argument(
         '-a', '--analyze', action='store_true',
@@ -273,6 +345,10 @@ if __name__ == '__main__':
         '-i', '--initialize', action='store_true',
         help='intialize the data'
     )
+    parser.add_argument(
+        '-A', '--data_analysis', action='store_true',
+        help='analyze just the dataset'
+    )
     args = parser.parse_args()
 
 
@@ -285,6 +361,7 @@ if __name__ == '__main__':
         LOGISTIC_REGRESSION: LogisticRegression(),
         HIERARCHICAL: HierClassifier(),
         LINEAR_SVM: LinearSVC(),
+        RANDOM_FOREST: RandomForestClassifier(n_estimators=10),
     }
 
     label_setting = args.label_setting
@@ -296,7 +373,19 @@ if __name__ == '__main__':
     elif args.ablation:
         feature_ablation(train, test, model, label_setting)
     elif args.initialize:
-        initialize(load_glove=False)
+        initialize(ALL_DATA_FILE, load_glove=True)
+    elif args.data_analysis:
+        big_dataset_analysis(train, test)
+    elif args.testing:
+        results = ''
+        for label_setting in (MAJORITY_RULE, MORE_COMPLICATED,):
+            for mname, model in models.items():
+                print('Fitting model: {}...'.format(mname))
+                results += '\n\n------------------------------'
+                results += 'Label setting: {}. Model: {}.'.format(label_setting, mname)
+                results += basic_testing(train, test, model, label_setting)
+        with open('../results/prelim_full_data_results.txt', 'w') as f:
+            f.write(results)
     else:
         print('Running leave-one-out cross validation with model {} and labels {}...'.format(args.model, label_setting))
         run_leave_one_out(train + test, label_setting, model, args.model)
