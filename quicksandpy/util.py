@@ -1,6 +1,5 @@
 import numpy as np
 
-
 ### Globals ###
 LABELS = ('pos', 'neg', 'com', 'obj')
 COMPLICATED = 'com'
@@ -16,12 +15,19 @@ MAJORITY_RULE = 'majority'
 MORE_COMPLICATED = 'complicated'
 SOFTMAX = 'softmax'
 
+# model options
+LOGISTIC_REGRESSION = 'logreg'
+HIERARCHICAL = 'hier_logreg'
+LINEAR_SVM = 'linearsvm'
+
 # feature sets
 UNIGRAMS = 'unigrams'
 BIGRAMS = 'bigrams'
 WEMB = 'wemb'
 SENTIWN = 'swn'
 SENTIWN_WEMBS = 'swn_wemb'
+ALL_FEATURES = {UNIGRAMS, BIGRAMS, WEMB, SENTIWN, SENTIWN_WEMBS}
+BEST_FEATURES = {UNIGRAMS, BIGRAMS, WEMB, SENTIWN}
 
 # utility
 GLOVE_DATA_PATH = '/mnt/data/glove/'
@@ -54,6 +60,9 @@ def raw_load_and_extract_glove(vocab_set, dimensions, extract_dir, serialize_emb
 
 def get_glove_fname(path, dim):
     return '{}vocab_embs{}'.format(path, dim)
+
+def get_loo_results_fname(model_name, label_setting, path='../results/loo_tests/'):
+    return '{}loo-results_model-{}_label-{}'.format(path, model_name, label_setting)
 
 def get_glove_data():
     print('Loading word embeddings...')

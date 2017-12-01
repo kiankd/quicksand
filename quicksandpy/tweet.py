@@ -39,13 +39,14 @@ class Tweet(object):
             else:
                 return COMPLICATED
 
-    def get_feature_vector(self):
+    def get_feature_vector(self, selected_feats=ALL_FEATURES):
         all_feats = np.array([])
-        for vector in self.features.values():
-            try:
-                all_feats = np.concatenate((all_feats, np.array(vector.todense()).flatten()))
-            except AttributeError:
-                all_feats = np.concatenate((all_feats, vector))
+        for feat, vector in self.features.items():
+            if feat in selected_feats:
+                try:
+                    all_feats = np.concatenate((all_feats, np.array(vector.todense()).flatten()))
+                except AttributeError:
+                    all_feats = np.concatenate((all_feats, vector))
         return all_feats
 
 

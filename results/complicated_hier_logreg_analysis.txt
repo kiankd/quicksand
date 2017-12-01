@@ -1,0 +1,67 @@
+Loading data...
+Analyzing results for model hier_logreg with label setting complicated...
+
+
+--DATASET STATISTICS--
+Gold Label Counts:
+	obj - 623
+	com - 499
+	pos - 132
+	neg - 136
+Predicted Label Counts:
+	obj - 630
+	com - 507
+	pos - 129
+	neg - 124
+Topic Counts:
+	Companies_and_Products - 1390
+
+
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.44      0.45      0.44       499
+        neg       0.42      0.38      0.40       136
+        obj       0.65      0.65      0.65       623
+        pos       0.37      0.36      0.37       132
+
+avg / total       0.52      0.53      0.53      1390
+
+
+Final F1-Accuracy: 0.5251072192000276
+Final normal Accuracy: 0.5258992805755396
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.5 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.38      0.45      0.41       380
+        neg       0.46      0.38      0.42       136
+        obj       0.69      0.65      0.67       623
+        pos       0.42      0.36      0.39       132
+
+avg / total       0.55      0.54      0.54      1271
+
+
+Final F1-Accuracy: 0.5385294664448813
+Final normal Accuracy: 0.5350118017309206
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.79 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.03      0.60      0.06        15
+        neg       0.65      0.38      0.48       136
+        obj       0.90      0.65      0.76       623
+        pos       0.59      0.36      0.45       132
+
+avg / total       0.81      0.57      0.66       906
+
+
+Final F1-Accuracy: 0.6608736509060295
+Final normal Accuracy: 0.5706401766004415
