@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-from quicksand.quicksandpy import tweet, load_data, util
+from quicksand.quicksandpy import tweet, load_data_DEPRECATED, util
 
 
 class HierClassifier(object):
@@ -166,7 +166,7 @@ def uncertainty(clf, test_tweets, threshold=0.05):
 	max_con = np.max(confidence, axis=1)
 	max_diff = np.min(max_con.reshape(-1, 1) - confidence, axis=1)
 
-	print max_diff
+	print(max_diff)
 
 	ind = np.argmax(confidence, axis=1)
 	ind[np.where(max_diff < threshold)[0]] = 0 

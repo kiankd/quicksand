@@ -3,18 +3,29 @@ Analyzing results for model hier_logreg with label setting complicated...
 
 
 --DATASET STATISTICS--
+
 Gold Label Counts:
-	obj - 623
-	com - 499
-	pos - 132
-	neg - 136
+  obj - 623
+  com - 499
+  pos - 132
+  neg - 136
+
 Predicted Label Counts:
-	obj - 630
-	com - 507
-	pos - 129
-	neg - 124
+  obj - 630
+  com - 507
+  pos - 129
+  neg - 124
+
 Topic Counts:
-	Companies_and_Products - 1390
+  Companies_and_Products - 1390
+
+Length of Feature Vectors:
+  swn - 14
+  bigrams - 1235
+  wemb - 201
+  swn_wemb - 1206
+  unigrams - 1039
+  total - 3695
 
 
 
@@ -65,3 +76,19 @@ avg / total       0.81      0.57      0.66       906
 
 Final F1-Accuracy: 0.6608736509060295
 Final normal Accuracy: 0.5706401766004415
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.99 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.01      0.50      0.01         2
+        neg       0.77      0.48      0.59        69
+        obj       0.96      0.72      0.83       391
+        pos       0.65      0.47      0.55        68
+
+avg / total       0.89      0.66      0.76       530
+
+
+Final F1-Accuracy: 0.756526689240215
+Final normal Accuracy: 0.6584905660377358

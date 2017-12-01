@@ -1,7 +1,7 @@
 import numpy as np
 from collections import defaultdict
 from quicksand.quicksandpy.classifier import test_classifiers
-from quicksand.quicksandpy.load_data import get_all_data
+from quicksand.quicksandpy.load_data_DEPRECATED import get_all_data
 from quicksand.quicksandpy.tweet import load_tweets
 from quicksand.quicksandpy.preprocessing import preprocess_tweets
 

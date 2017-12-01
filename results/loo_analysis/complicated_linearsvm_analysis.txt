@@ -1,0 +1,94 @@
+Loading data...
+Analyzing results for model linearsvm with label setting complicated...
+
+
+--DATASET STATISTICS--
+
+Gold Label Counts:
+  obj - 623
+  com - 499
+  pos - 132
+  neg - 136
+
+Predicted Label Counts:
+  obj - 657
+  com - 504
+  pos - 111
+  neg - 118
+
+Topic Counts:
+  Companies_and_Products - 1390
+
+Length of Feature Vectors:
+  wemb - 201
+  swn - 14
+  swn_wemb - 1206
+  unigrams - 1039
+  bigrams - 1235
+  total - 3695
+
+
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.42      0.42      0.42       499
+        neg       0.37      0.32      0.35       136
+        obj       0.60      0.64      0.62       623
+        pos       0.41      0.35      0.38       132
+
+avg / total       0.50      0.50      0.50      1390
+
+
+Final F1-Accuracy: 0.49750202119169856
+Final normal Accuracy: 0.5007194244604316
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.5 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.36      0.43      0.39       380
+        neg       0.41      0.32      0.36       136
+        obj       0.65      0.64      0.64       623
+        pos       0.48      0.35      0.40       132
+
+avg / total       0.52      0.51      0.51      1271
+
+
+Final F1-Accuracy: 0.5126258235679192
+Final normal Accuracy: 0.5114083398898505
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.79 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.04      0.73      0.07        15
+        neg       0.56      0.32      0.41       136
+        obj       0.87      0.64      0.74       623
+        pos       0.67      0.35      0.46       132
+
+avg / total       0.78      0.55      0.64       906
+
+
+Final F1-Accuracy: 0.6352248011684744
+Final normal Accuracy: 0.5485651214128036
+
+
+
+--RESULTS WHEN EVALUATING ONLY TWEETS THAT HAD > 0.99 PERCENT AGREEMENT--
+             precision    recall  f1-score   support
+
+        com       0.01      1.00      0.03         2
+        neg       0.65      0.38      0.48        69
+        obj       0.95      0.70      0.81       391
+        pos       0.70      0.49      0.57        68
+
+avg / total       0.88      0.63      0.73       530
+
+
+Final F1-Accuracy: 0.7321200935578273
+Final normal Accuracy: 0.6320754716981132
