@@ -6,6 +6,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
 import torch
 import torch.nn as nn
@@ -74,26 +75,37 @@ class nn_model(nn.Module):
 
 
 class nn_classifier(object):
-	def __init__(self, feature_dim, num_classes=4, loss_func="OURS", lr=1e-3, weight_decay=0):
+	def __init__(self, feature_dim, num_classes=4, loss_func="MSE", lr=1e-3, weight_decay=0):
+		'''
+		loss_func:
+		"MSE" for mean squared error
+		"CE" for softmax/cross entropy
+		"OURS" (or anything not MSE/CE) for softmax/cross entropy over codings
+		'''
 		self.nn = nn_model(feature_dim, num_classes).cuda()
 		self.optimizer = torch.optim.Adam(self.nn.parameters(), lr=lr, weight_decay=weight_decay)
-		self.criterion = nn.MSELoss()
+
+		self.criterion = nn.CrossEntropyLoss() if loss_func=="CE" else nn.MSELoss()
 		self.loss_func = loss_func
+
 
 	def fit(self, train, labels, iterations=1000, batch_size=64):
 
-		# labels = one_hot(label2digit(labels))
-		# train = train.todense().astype(np.float)
+		labels = label2digit(labels) if self.loss_func=="CE" else labels
 
 		for it in range(iterations):
 			train_batch, labels_batch = get_batch(train, labels, batch_size)
 
 			train_var = Variable(torch.from_numpy(train_batch).float()).cuda()
-			labels_var = Variable(torch.from_numpy(labels_batch).float()).cuda()
+			
+			if self.loss_func=="CE":
+				labels_var = Variable(torch.from_numpy(labels_batch).long()).cuda()
+			else:
+				labels_var = Variable(torch.from_numpy(labels_batch).float()).cuda()
 
 			pred = self.nn(train_var)
 
-			if self.loss_func=="MSE":
+			if self.loss_func=="MSE" or self.loss_func=="CE":
 				loss = self.criterion(pred, labels_var)
 			else:
 				loss = self.new_loss(F.softmax(pred), labels_var)
@@ -146,8 +158,27 @@ def one_hot(labels, num_classes=4):
 	return onehot
 
 
+# Doesn't work atm 
+def uncertainty(clf, test_tweets, threshold=0.05):
+	confidence = clf.predict_proba(test_tweets)
+	labelling = clf.classes_
+
+	max_con = np.max(confidence, axis=1)
+	max_diff = np.min(max_con.reshape(-1, 1) - confidence, axis=1)
+
+	print max_diff
+
+	ind = np.argmax(confidence, axis=1)
+	ind[np.where(max_diff < threshold)[0]] = 0 
+
+	return labelling[ind]
+
 
 def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, nn_labels, num_classes=4, nn_only=False):
+
+	scaler = StandardScaler()
+	train_tweets = scaler.fit_transform(train_tweets)
+	test_tweets = scaler.transform(test_tweets)
 
 	clfs = []
 
@@ -164,10 +195,10 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, nn_la
 	print("------------------------------------")
 
 	if not nn_only: 
-		clf = HierClassifier()
+		clf = LogisticRegression()
 		clfs.append(clf)
 
-		clf = LogisticRegression()
+		clf = HierClassifier()
 		clfs.append(clf)
 
 		clf = KNeighborsClassifier(n_neighbors=3)
@@ -185,10 +216,15 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, nn_la
 		clf = RandomForestClassifier()
 		clfs.append(clf)
 
-		for clf in clfs:
+		for i, clf in enumerate(clfs):
 			print (clf)
 			clf.fit(train_tweets, train_labels)
+		
+			# if i == 0:
+			# 	pred_labels = uncertainty(clf, test_tweets)
+			#else:
 			pred_labels = clf.predict(test_tweets)
+
 			score = classification_report(test_labels, pred_labels, digits=3)
 			print(score)
 			print("------------------------------------")
@@ -203,6 +239,7 @@ if __name__ == "__main__":
 	test_tw = np.load("quicksand/labelled_data/test_tweets_with_labels.npy")
 
 	label_type = util.MAJORITY_RULE
+	nn_type = util.SOFTMAX # SOFTMAX for MSE/OURS, MAJORITY_RULE/MORE_COMPLICATED for CE 
 
 	train_tweets = []
 	train_labels = []
@@ -210,7 +247,7 @@ if __name__ == "__main__":
 	for tw in train_tw:
 		train_tweets.append(tw.get_feature_vector())
 		train_labels.append(tw.get_labelling(label_type))
-		nn_labels.append(tw.get_labelling(util.SOFTMAX))
+		nn_labels.append(tw.get_labelling(nn_type))
 
 	test_tweets = []
 	test_labels = []
@@ -218,5 +255,5 @@ if __name__ == "__main__":
 		test_tweets.append(tw.get_feature_vector())
 		test_labels.append(tw.get_labelling(label_type))
 
-	# train_tweets, train_labels, test_tweets, test_labels = load_data.get_all_data()
+
 	test_classifiers(np.array(train_tweets), np.array(test_tweets), np.array(train_labels), np.array(test_labels), np.array(nn_labels))
