@@ -1,0 +1,105 @@
+
+
+------------------------------Label setting: majority. Model: logreg.             precision    recall  f1-score   support
+
+        com       0.19      0.05      0.08       118
+        neg       0.56      0.43      0.49       189
+        obj       0.73      0.88      0.80       849
+        pos       0.64      0.54      0.58       257
+
+avg / total       0.65      0.69      0.66      1413
+
+
+Final F1-Accuracy: 0.6582621094633947
+Final normal Accuracy: 0.6878980891719745
+
+------------------------------Label setting: majority. Model: hier_logreg.             precision    recall  f1-score   support
+
+        com       0.19      0.07      0.10       118
+        neg       0.46      0.50      0.48       189
+        obj       0.76      0.82      0.79       849
+        pos       0.58      0.58      0.58       257
+
+avg / total       0.64      0.67      0.65      1413
+
+
+Final F1-Accuracy: 0.6497939322560505
+Final normal Accuracy: 0.6666666666666666
+
+------------------------------Label setting: majority. Model: linearsvm.             precision    recall  f1-score   support
+
+        com       0.17      0.12      0.14       118
+        neg       0.47      0.45      0.46       189
+        obj       0.74      0.80      0.77       849
+        pos       0.58      0.52      0.55       257
+
+avg / total       0.63      0.64      0.63      1413
+
+
+Final F1-Accuracy: 0.6333901313409325
+Final normal Accuracy: 0.6447275300778486
+
+------------------------------Label setting: majority. Model: forest.             precision    recall  f1-score   support
+
+        com       0.11      0.03      0.04       118
+        neg       0.40      0.20      0.27       189
+        obj       0.65      0.92      0.76       849
+        pos       0.64      0.23      0.34       257
+
+avg / total       0.57      0.62      0.56      1413
+
+
+Final F1-Accuracy: 0.5590683725378045
+Final normal Accuracy: 0.6227883934890305
+
+------------------------------Label setting: complicated. Model: logreg.             precision    recall  f1-score   support
+
+        com       0.45      0.45      0.45       514
+        neg       0.58      0.28      0.38       110
+        obj       0.64      0.73      0.68       652
+        pos       0.57      0.44      0.49       137
+
+avg / total       0.56      0.56      0.56      1413
+
+
+Final F1-Accuracy: 0.5562827516121989
+Final normal Accuracy: 0.564755838641189
+
+------------------------------Label setting: complicated. Model: hier_logreg.             precision    recall  f1-score   support
+
+        com       0.44      0.50      0.47       514
+        neg       0.43      0.27      0.33       110
+        obj       0.67      0.65      0.66       652
+        pos       0.44      0.44      0.44       137
+
+avg / total       0.55      0.55      0.55      1413
+
+
+Final F1-Accuracy: 0.545109469699475
+Final normal Accuracy: 0.5456475583864119
+
+------------------------------Label setting: complicated. Model: linearsvm.             precision    recall  f1-score   support
+
+        com       0.42      0.41      0.41       514
+        neg       0.40      0.31      0.35       110
+        obj       0.62      0.65      0.64       652
+        pos       0.46      0.47      0.46       137
+
+avg / total       0.52      0.52      0.52      1413
+
+
+Final F1-Accuracy: 0.517692574014967
+Final normal Accuracy: 0.5208775654635527
+
+------------------------------Label setting: complicated. Model: forest.             precision    recall  f1-score   support
+
+        com       0.41      0.52      0.46       514
+        neg       0.27      0.04      0.06       110
+        obj       0.55      0.60      0.58       652
+        pos       0.51      0.13      0.21       137
+
+avg / total       0.48      0.48      0.46      1413
+
+
+Final F1-Accuracy: 0.4589602133168231
+Final normal Accuracy: 0.4840764331210191

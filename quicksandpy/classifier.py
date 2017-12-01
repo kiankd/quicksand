@@ -235,8 +235,8 @@ def test_classifiers(train_tweets, test_tweets, train_labels, test_labels, nn_la
 
 if __name__ == "__main__":
 	
-	train_tw = np.load("quicksand/labelled_data/train_tweets_with_labels.npy")
-	test_tw = np.load("quicksand/labelled_data/test_tweets_with_labels.npy")
+	train_tw = np.load("quicksand/labelled_data/train_tweets_with_labels_full.npy")
+	test_tw = np.load("quicksand/labelled_data/test_tweets_with_labels_full.npy")
 
 	label_type = util.MAJORITY_RULE
 	nn_type = util.SOFTMAX # SOFTMAX for MSE/OURS, MAJORITY_RULE/MORE_COMPLICATED for CE 

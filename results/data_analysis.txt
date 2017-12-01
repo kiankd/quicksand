@@ -1,0 +1,105 @@
+Loading data...
+
+
+--DATASET STATISTICS for **Random training set (80%**--
+
+Majority Rule Labelling Counts:
+  obj - 3363
+  pos - 934
+  neg - 851
+  com - 502
+
+More Complicated Labelling Counts:
+  obj - 2566
+  pos - 564
+  com - 2038
+  neg - 482
+
+Topic Counts:
+  Sports - 1396
+  Media - 1371
+  Companies_and_Products - 1090
+  Food - 1402
+  General - 391
+
+Length of Feature Vectors:
+  unigrams - 4158
+  swn - 14
+  wemb - 201
+  bigrams - 5000
+  swn_wemb - 1206
+  total - 10579
+
+
+Proportion of data with 0 percent agreement:
+  5650 out of 5650; 1.0 percent of the data.
+Proportion of data with 0.5 percent agreement:
+  5200 out of 5650; 0.9203539823008849 percent of the data.
+Proportion of data with 0.79 percent agreement:
+  3623 out of 5650; 0.6412389380530974 percent of the data.
+Proportion of data with 0.99 percent agreement:
+  1942 out of 5650; 0.34371681415929206 percent of the data.
+
+
+--DATASET STATISTICS for **Random testing set (20%)**--
+
+Majority Rule Labelling Counts:
+  obj - 849
+  pos - 257
+  neg - 189
+  com - 118
+
+More Complicated Labelling Counts:
+  com - 514
+  obj - 652
+  neg - 110
+  pos - 137
+
+Topic Counts:
+  Sports - 370
+  Media - 336
+  Food - 333
+  Companies_and_Products - 269
+  General - 105
+
+
+Proportion of data with 0 percent agreement:
+  1413 out of 1413; 1.0 percent of the data.
+Proportion of data with 0.5 percent agreement:
+  1305 out of 1413; 0.9235668789808917 percent of the data.
+Proportion of data with 0.79 percent agreement:
+  901 out of 1413; 0.637650389242746 percent of the data.
+Proportion of data with 0.99 percent agreement:
+  492 out of 1413; 0.3481953290870488 percent of the data.
+
+
+--DATASET STATISTICS for **Full data set (100%)**--
+
+Majority Rule Labelling Counts:
+  obj - 4212
+  pos - 1191
+  neg - 1040
+  com - 620
+
+More Complicated Labelling Counts:
+  obj - 3218
+  pos - 701
+  com - 2552
+  neg - 592
+
+Topic Counts:
+  Sports - 1766
+  Media - 1707
+  Companies_and_Products - 1359
+  Food - 1735
+  General - 496
+
+
+Proportion of data with 0 percent agreement:
+  7063 out of 7063; 1.0 percent of the data.
+Proportion of data with 0.5 percent agreement:
+  6505 out of 7063; 0.9209967435933739 percent of the data.
+Proportion of data with 0.79 percent agreement:
+  4524 out of 7063; 0.6405210250601727 percent of the data.
+Proportion of data with 0.99 percent agreement:
+  2434 out of 7063; 0.3446127707772901 percent of the data.
