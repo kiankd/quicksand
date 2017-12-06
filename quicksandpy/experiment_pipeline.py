@@ -4,17 +4,19 @@ sys.path.append('/home/ml/kkenyo1/quicksand/')
 
 import numpy as np
 import argparse
-from collections import defaultdict
+from random import randint
+from collections import defaultdict, Counter
 from csv import DictReader, DictWriter
+from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import train_test_split, LeaveOneOut, KFold
-from sklearn.metrics import classification_report, accuracy_score, f1_score
+from sklearn.metrics import classification_report, accuracy_score, f1_score, confusion_matrix
 from quicksand.quicksandpy.util import *
 from quicksand.quicksandpy.feature_extraction import extract_features
 from quicksand.quicksandpy.preprocessing import preprocess_tweets
 from quicksand.quicksandpy.classifier import LogisticRegression, HierClassifier, LinearSVC, RandomForestClassifier
 from quicksand.quicksandpy.tweet import Tweet
 
-# utility
+
 def get_y(tweets, label_setting):
     return np.array([tweet.get_labelling(label_setting) for tweet in tweets])
 
@@ -29,13 +31,22 @@ def get_results(gold_labels, pred_labels):
     )
     return s
 
-def big_dataset_analysis(train, test):
-    all_d = train + test
-    data_and_names = [
-        (train, 'Random training set (80%'),
-        (test, 'Random testing set (20%)'),
-        (all_d, 'Full data set (100%)')
-    ]
+def filter_for_agreement(tweet_list, threshold, get_shit=False, upper=1):
+    if get_shit:
+        return [tweet for tweet in tweet_list if tweet.get_agreement() <= 0.5]
+    return [tweet for tweet in tweet_list if threshold <= tweet.get_agreement() < upper]
+
+def big_dataset_analysis(train, test, just_all=False):
+    if just_all:
+        assert(len(test)==0)
+        data_and_names = [(list(train), 'Full data set (100%)')]
+    else:
+        all_d = train + test
+        data_and_names = [
+            (train, 'Random training set (80%'),
+            (test, 'Random testing set (20%)'),
+            (all_d, 'Full data set (100%)')
+        ]
 
     first = True
     for dataset, dname in data_and_names:
@@ -89,7 +100,7 @@ def big_dataset_analysis(train, test):
         first = False
 
 # loading functions
-def load_tweets_from_csv(fname, serialize=True):
+def load_tweets_from_csv(fname, serialize=True, use_all_for_ngrams=False):
     # Load the data into memory
     ids_to_content = defaultdict(lambda: [])
     with open(fname) as f:
@@ -114,6 +125,10 @@ def load_tweets_from_csv(fname, serialize=True):
             for key in CSV_LABELS:
                 tweet_stats[key[0:3]] += 1 if labelling[POS_NEG_COM_KEY] == key else 0
 
+        if sum(tweet_stats.values()) < 5:
+            print('shit tweet...')
+            continue
+
         # extract the necessary data
         tweet = Tweet(first_tweet[TWEET_ID], first_tweet['text'], first_tweet['topic'])
         tweet.labelling = tweet_stats
@@ -125,18 +140,29 @@ def load_tweets_from_csv(fname, serialize=True):
 
     # save data if desired
     if serialize:
-        train_tweets, test_tweets = train_test_split(tweets, test_size=0.2, shuffle=True, random_state=1917)
+        if use_all_for_ngrams:
+            train_tweets, test_tweets = tweets, []
+        else:
+            train_tweets, test_tweets = train_test_split(tweets, test_size=0.2, shuffle=True, random_state=1917)
+
         print('Extracting features...')
         extract_features(train_tweets, test_tweets)
-        np.save('../labelled_data/train_tweets_with_labels_full.npy', np.array(train_tweets))
-        np.save('../labelled_data/test_tweets_with_labels_full.npy', np.array(test_tweets))
+
+        if use_all_for_ngrams:
+            np.save('../labelled_data/all_tweets_with_labels.npy', np.array(train_tweets))
+        else:
+            np.save('../labelled_data/train_tweets_with_labels_full.npy', np.array(train_tweets))
+            np.save('../labelled_data/test_tweets_with_labels_full.npy', np.array(test_tweets))
 
     return tweets
 
-def load_train_test():
-    train_tweets = np.load('../labelled_data/train_tweets_with_labels_full.npy')
-    test_tweets = np.load('../labelled_data/test_tweets_with_labels_full.npy')
-    return list(train_tweets), list(test_tweets)
+def load_train_test(get_all=False):
+    if get_all:
+        return list(np.load('../labelled_data/all_tweets_with_labels.npy')), []
+    else:
+        train_tweets = np.load('../labelled_data/train_tweets_with_labels_full.npy')
+        test_tweets = np.load('../labelled_data/test_tweets_with_labels_full.npy')
+        return list(train_tweets), list(test_tweets)
 
 # classification testing
 def run_leave_one_out(tweets, label_setting, model, model_name, features=BEST_FEATURES):
@@ -248,7 +274,144 @@ def basic_testing(train, test, model, label_setting):
 
     model.fit(train_X, train_y)
     preds = model.predict(test_X)
-    return get_results(test_y, preds)
+    print(get_results(test_y, preds))
+
+    print('\nMore results...')
+    train_y_consensus = get_y(train, label_setting=MORE_COMPLICATED)
+    train_y_majority = get_y(train, label_setting=MAJORITY_RULE)
+    test_y = get_y(test, label_setting=MAJORITY_RULE)
+
+    for m in (LogisticRegression(), DummyClassifier(),):
+        print(f'Results with model {m} - TRAINED ON CONSENSUS:')
+        m.fit(train_X, train_y_consensus)
+        preds = m.predict(test_X)
+        print(classification_report(test_y, preds))
+        print(confusion_matrix(test_y, preds))
+
+        print(f'\nResults with model {m} - TRAINED ON MAJORITY RULE:')
+        m.fit(train_X, train_y_majority)
+        preds = m.predict(test_X)
+        print(classification_report(test_y, preds))
+        print(confusion_matrix(test_y, preds))
+
+        print('\n\n')
+
+    complicated_tests(train, test)
+
+def get_model_acc(X_train, y_train, X_test, y_test, model, verbose=False,):
+    model.fit(X_train, y_train)
+    preds = model.predict(X_test)
+    if verbose:
+        print(classification_report(y_test, preds))
+        print(dict(Counter(list(preds))))
+    return f1_score(y_test, preds, average='weighted')
+
+def agreement_level_experiments(all_tweets, label_setting, model=LogisticRegression(), do_upper_bound=False):
+    big_dataset_analysis(all_tweets, [], just_all=True)
+    print('Testing model {} with label setting {}...'.format(model, label_setting))
+
+    K = 5
+    kf = KFold(n_splits=K, shuffle=True, random_state=1917)
+    agreement_threshs = [0.51, 0.8, 1]
+
+    k = 0
+    thresh_to_fold_results = defaultdict(lambda: [])
+    for train_idx, test_idx in kf.split(all_tweets):
+        print('Current fold is {}...'.format(k))
+        k += 1
+
+        train_tweets, test_tweets = all_tweets[train_idx], all_tweets[test_idx]
+
+        # unfiltered
+        X_train = get_X(train_tweets, features=BEST_FEATURES)
+        y_train = get_y(train_tweets, label_setting)
+        X_test = get_X(test_tweets, features=BEST_FEATURES)
+        y_test = get_y(test_tweets, label_setting)
+
+        # shit data
+        shit_tweets = filter_for_agreement(test_tweets, None, get_shit=True)
+        X_shit_test = get_X(shit_tweets, features=BEST_FEATURES)
+        y_shit_test = get_y(shit_tweets, label_setting)
+
+        # final exp CV results
+        keyall = 'trainALL-testALL'
+        keyshit = 'trainALl-testSHIT'
+        print('TRAINING ON ALL')
+        print('testing on all')
+        thresh_to_fold_results[keyall].append(get_model_acc(X_train, y_train, X_test, y_test, model, verbose=True))
+        print('\ntesting on shit')
+        thresh_to_fold_results[keyshit].append(get_model_acc(X_train, y_train, X_shit_test, y_shit_test, model, verbose=True))
+
+        print('\n\n\n\n\n')
+        # print(thresh_to_fold_results)
+
+        for i, thresh in enumerate(agreement_threshs):
+            # filtering train by agreement
+            try:
+                upper_bound = agreement_threshs[i+1]
+            except IndexError:
+                upper_bound = 1.01
+            if not do_upper_bound:
+                upper_bound = 1.01
+
+            filtered_train = filter_for_agreement(train_tweets, thresh, upper=upper_bound)
+            X_flt_train = get_X(filtered_train, features=BEST_FEATURES)
+            y_flt_train = get_y(filtered_train, label_setting)
+
+            # filtering test by agreement
+            filtered_test = filter_for_agreement(test_tweets, thresh, upper=upper_bound)
+            X_flt_test = get_X(filtered_test, features=BEST_FEATURES)
+            y_flt_test = get_y(filtered_test, label_setting)
+
+            # three different experiment settings per threshold
+            # - train on all, test on filtered
+            # - train on filtered, test on all
+            # - train on filtered, test on filtered
+            key1 = 'trainALL-testFILTERED-thresh{}'.format(thresh)
+            key2 = 'trainFILTERED-testALL-thresh{}'.format(thresh)
+            key3 = 'trainFILTERED-testFILTERED-thresh{}'.format(thresh)
+            key4 = 'trainFILTERED-testSHIT-thresh{}'.format(thresh)
+
+            experiments = [
+                (key1, X_train, y_train, X_flt_test, y_flt_test),
+                (key2, X_flt_train, y_flt_train, X_test, y_test),
+                (key3, X_flt_train, y_flt_train, X_flt_test, y_flt_test),
+                (key4, X_flt_train, y_flt_train, X_shit_test, y_shit_test),
+            ]
+
+            for key, xtr, ytr, xte, yte in experiments:
+                thresh_to_fold_results[key].append(get_model_acc(xtr, ytr, xte, yte, model))
+
+        with open('../agreement_level_results_labels{}_dummy_bounded.tsv'.format(label_setting), 'w') as tsvf:
+            field_names = ['test_setting', 'mean_score'] + ['fold_{}'.format(i) for i in range(K)]
+            writer = DictWriter(tsvf, fieldnames=field_names)
+            writer.writeheader()
+
+            for test_setting, fold_results in thresh_to_fold_results.items():
+                d = {'test_setting': test_setting}
+                d.update({'fold_{}'.format(i): fold_results[i] for i in range(len(fold_results))})
+                d['mean_score'] = np.mean(fold_results)
+                writer.writerow(d)
+
+def complicated_tests(train, test):
+    X_train = get_X(train, features=BEST_FEATURES)
+    y_train = get_y(train, label_setting=MAJORITY_RULE)
+    X_test = get_X(test, features=BEST_FEATURES)
+    y_test = get_y(test, label_setting=MAJORITY_RULE)
+
+    # convert to com non-com
+    y_train[y_train != 'com'] = 'ncom'
+    y_test[y_test != 'com'] = 'ncom'
+
+    # balance data
+    for model in (LogisticRegression(), DummyClassifier(),):
+        model.fit(X_train, y_train)
+        preds = model.predict(X_test)
+
+        print(f'\n\nCOMPLICATED TESTS WITH {model}')
+        print(classification_report(y_test, preds))
+        print(confusion_matrix(y_test, preds))
+
 
 # results analyzing
 def analyze_results(all_tweets, fname):
@@ -307,7 +470,7 @@ def analyze_results(all_tweets, fname):
         print(get_results(gold_labels, pred_labels))
 
 # initialization function
-def initialize(data_file, load_glove=False):
+def initialize(data_file, load_glove=False, use_all_ngrams=False):
     # this is for initializing the data and getting word embeddings
     if load_glove:
         tweets = load_tweets_from_csv('../../data/{}'.format(data_file), serialize=False)
@@ -317,7 +480,8 @@ def initialize(data_file, load_glove=False):
         raw_load_and_extract_glove(vocab, EMB_SIZE, '../labelled_data/')
 
     # feature extraction and serialization
-    load_tweets_from_csv('../../data/{}'.format(data_file), serialize=True)
+    load_tweets_from_csv('../../data/{}'.format(data_file), serialize=True, use_all_for_ngrams=use_all_ngrams)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -332,6 +496,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '-t', '--testing', action='store_true',
         help='do basic testing of models on train and test sets'
+    )
+    parser.add_argument(
+        '-g', '--agreement', action='store_true',
+        help='5-fold CV agreement level testing'
     )
     parser.add_argument(
         '-a', '--analyze', action='store_true',
@@ -351,10 +519,10 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-
-    # run leave-one-out CV
-    print('Loading data...')
-    train, test = load_train_test()
+    # get the data
+    if not args.initialize:
+        print('Loading data...')
+        train, test = load_train_test(get_all=not args.testing)
 
     # get label setting and model from argv
     models = {
@@ -362,6 +530,7 @@ if __name__ == '__main__':
         HIERARCHICAL: HierClassifier(),
         LINEAR_SVM: LinearSVC(),
         RANDOM_FOREST: RandomForestClassifier(n_estimators=10),
+        GUESSER: DummyClassifier(),
     }
 
     label_setting = args.label_setting
@@ -370,12 +539,19 @@ if __name__ == '__main__':
     if args.analyze:
         print('Analyzing results for model {} with label setting {}...'.format(args.model, label_setting))
         analyze_results(train + test, get_loo_results_fname(args.model, label_setting))
+
     elif args.ablation:
         feature_ablation(train, test, model, label_setting)
+
     elif args.initialize:
-        initialize(ALL_DATA_FILE, load_glove=True)
+        initialize(ALL_DATA_FILE, load_glove=True, use_all_ngrams=True)
+
     elif args.data_analysis:
         big_dataset_analysis(train, test)
+
+    elif args.agreement:
+        agreement_level_experiments(np.array(train), label_setting, model=model, do_upper_bound=True)
+
     elif args.testing:
         results = ''
         for label_setting in (MAJORITY_RULE, MORE_COMPLICATED,):

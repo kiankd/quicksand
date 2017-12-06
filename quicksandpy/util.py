@@ -22,6 +22,7 @@ LOGISTIC_REGRESSION = 'logreg'
 HIERARCHICAL = 'hier_logreg'
 LINEAR_SVM = 'linearsvm'
 RANDOM_FOREST = 'forest'
+GUESSER = 'dummy'
 
 # feature sets
 UNIGRAMS = 'unigrams'

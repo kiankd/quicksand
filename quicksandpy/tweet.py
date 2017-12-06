@@ -15,6 +15,11 @@ class Tweet(object):
         self.uncorrected_tokens = []
         self.features = {}
 
+    def get_agreement(self):
+        total = sum(self.labelling.values())
+        max_count = max(self.labelling.values())
+        return max_count / float(total)
+
     def get_labelling(self, option):
         label_counts = [self.labelling[label] for label in LABELS]
         total = sum(self.labelling.values())
