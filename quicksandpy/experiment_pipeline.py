@@ -3,8 +3,9 @@ import sys
 sys.path.append('/home/ml/kkenyo1/quicksand/')
 
 import numpy as np
+import itertools
 import argparse
-from random import randint
+from matplotlib import pyplot as plt
 from collections import defaultdict, Counter
 from csv import DictReader, DictWriter
 from sklearn.dummy import DummyClassifier
@@ -298,15 +299,18 @@ def basic_testing(train, test, model, label_setting):
 
     complicated_tests(train, test)
 
-def get_model_acc(X_train, y_train, X_test, y_test, model, verbose=False,):
+def get_model_acc(X_train, y_train, X_test, y_test, model, verbose=False, weighted=False, with_preds=False):
     model.fit(X_train, y_train)
     preds = model.predict(X_test)
     if verbose:
         print(classification_report(y_test, preds))
         print(dict(Counter(list(preds))))
-    return f1_score(y_test, preds, average='weighted')
+    acc = f1_score(y_test, preds, average='weighted' if weighted else 'macro')
+    if with_preds:
+        return acc, preds
+    return acc
 
-def agreement_level_experiments(all_tweets, label_setting, model=LogisticRegression(), do_upper_bound=False):
+def agreement_level_experiments(all_tweets, label_setting, model=LogisticRegression(), do_upper_bound=False, shit=False, weighted=False):
     big_dataset_analysis(all_tweets, [], just_all=True)
     print('Testing model {} with label setting {}...'.format(model, label_setting))
 
@@ -321,26 +325,38 @@ def agreement_level_experiments(all_tweets, label_setting, model=LogisticRegress
         k += 1
 
         train_tweets, test_tweets = all_tweets[train_idx], all_tweets[test_idx]
+        y_train = get_y(train_tweets, label_setting)
+        y_test = get_y(test_tweets, label_setting)
+
+        # REMOVING COMPLICATED
+        print('REMOVING COMPLICATED DATA!!')
+        train_tweets = np.array(train_tweets)
+        test_tweets = np.array(test_tweets)
+        train_tweets = train_tweets[y_train != 'com']
+        y_train = y_train[y_train != 'com']
+        test_tweets = test_tweets[y_test != 'com']
+        y_test = y_test[y_test != 'com']
 
         # unfiltered
         X_train = get_X(train_tweets, features=BEST_FEATURES)
-        y_train = get_y(train_tweets, label_setting)
         X_test = get_X(test_tweets, features=BEST_FEATURES)
-        y_test = get_y(test_tweets, label_setting)
 
         # shit data
-        shit_tweets = filter_for_agreement(test_tweets, None, get_shit=True)
-        X_shit_test = get_X(shit_tweets, features=BEST_FEATURES)
-        y_shit_test = get_y(shit_tweets, label_setting)
+        if shit:
+            shit_tweets = filter_for_agreement(test_tweets, None, get_shit=True)
+            X_shit_test = get_X(shit_tweets, features=BEST_FEATURES)
+            y_shit_test = get_y(shit_tweets, label_setting)
 
         # final exp CV results
         keyall = 'trainALL-testALL'
-        keyshit = 'trainALl-testSHIT'
+        keyshit = 'trainALL-testSHIT'
         print('TRAINING ON ALL')
         print('testing on all')
-        thresh_to_fold_results[keyall].append(get_model_acc(X_train, y_train, X_test, y_test, model, verbose=True))
-        print('\ntesting on shit')
-        thresh_to_fold_results[keyshit].append(get_model_acc(X_train, y_train, X_shit_test, y_shit_test, model, verbose=True))
+        thresh_to_fold_results[keyall].append(get_model_acc(X_train, y_train, X_test, y_test, model, weighted=weighted,verbose=True))
+
+        if shit:
+            print('\ntesting on shit')
+            thresh_to_fold_results[keyshit].append(get_model_acc(X_train, y_train, X_shit_test, y_shit_test, model, weighted=weighted, verbose=True))
 
         print('\n\n\n\n\n')
         # print(thresh_to_fold_results)
@@ -376,22 +392,24 @@ def agreement_level_experiments(all_tweets, label_setting, model=LogisticRegress
                 (key1, X_train, y_train, X_flt_test, y_flt_test),
                 (key2, X_flt_train, y_flt_train, X_test, y_test),
                 (key3, X_flt_train, y_flt_train, X_flt_test, y_flt_test),
-                (key4, X_flt_train, y_flt_train, X_shit_test, y_shit_test),
             ]
 
+            if shit:
+                experiments.append((key4, X_flt_train, y_flt_train, X_shit_test, y_shit_test))
+
             for key, xtr, ytr, xte, yte in experiments:
-                thresh_to_fold_results[key].append(get_model_acc(xtr, ytr, xte, yte, model))
+                thresh_to_fold_results[key].append(get_model_acc(xtr, ytr, xte, yte, model, weighted=weighted))
 
-        with open('../agreement_level_results_labels{}_dummy_bounded.tsv'.format(label_setting), 'w') as tsvf:
-            field_names = ['test_setting', 'mean_score'] + ['fold_{}'.format(i) for i in range(K)]
-            writer = DictWriter(tsvf, fieldnames=field_names)
-            writer.writeheader()
+    with open('../agreement_results_logregbal_weighted.tsv', 'w') as tsvf:
+        field_names = ['test_setting', 'mean_score'] + ['fold_{}'.format(i) for i in range(K)]
+        writer = DictWriter(tsvf, fieldnames=field_names)
+        writer.writeheader()
 
-            for test_setting, fold_results in thresh_to_fold_results.items():
-                d = {'test_setting': test_setting}
-                d.update({'fold_{}'.format(i): fold_results[i] for i in range(len(fold_results))})
-                d['mean_score'] = np.mean(fold_results)
-                writer.writerow(d)
+        for test_setting, fold_results in thresh_to_fold_results.items():
+            d = {'test_setting': test_setting}
+            d.update({'fold_{}'.format(i): fold_results[i] for i in range(len(fold_results))})
+            d['mean_score'] = np.mean(fold_results)
+            writer.writerow(d)
 
 def complicated_tests(train, test):
     X_train = get_X(train, features=BEST_FEATURES)
@@ -412,8 +430,72 @@ def complicated_tests(train, test):
         print(classification_report(y_test, preds))
         print(confusion_matrix(y_test, preds))
 
+def complicated_results(all_tweets, label_setting=MAJORITY_RULE, write=False):
+    try:
+        cm = np.load('final_conf_mat.npy')[0]
+    except FileNotFoundError:
+        big_dataset_analysis(all_tweets, [], just_all=True)
 
-# results analyzing
+        K = 5
+        kf = KFold(n_splits=K, shuffle=True, random_state=1917)
+
+        models = {'logreg': LogisticRegression(class_weight='balanced'), 'dummy': DummyClassifier()}
+
+        k = 0
+        results = defaultdict(lambda: [])
+
+        all_y = np.array([])
+        all_preds = np.array([])
+        for train_idx, test_idx in kf.split(all_tweets):
+            print('Current fold is {}...'.format(k))
+            k += 1
+
+            train_tweets, test_tweets = all_tweets[train_idx], all_tweets[test_idx]
+            y_train = get_y(train_tweets, label_setting)
+            y_test = get_y(test_tweets, label_setting)
+
+            # unfiltered
+            X_train = get_X(train_tweets, features=BEST_FEATURES)
+            X_test = get_X(test_tweets, features=BEST_FEATURES)
+
+            # final exp CV results
+            for key, model in models.items():
+                _, preds = get_model_acc(X_train, y_train, X_test, y_test, model, verbose=True, with_preds=True)
+                if key == 'logreg':
+                    all_preds = np.concatenate((all_preds, preds))
+
+                for avg in ('weighted', 'macro'):
+                    reskey = '{}_{}'.format(key, avg)
+                    results[reskey].append(f1_score(y_test, preds, average=avg))
+
+            all_y = np.concatenate((all_y, y_test))
+
+        print('\n\nFINAL RESULTS ACROSS ALL FOLDS WITH ALL PREDS\n')
+        cm = confusion_matrix(all_y, all_preds)
+        print(classification_report(all_y, all_preds, digits=3))
+
+        np.save('final_conf_mat.npy', np.array([cm]))
+
+    # make conf mats
+    classes = [r'\textsc{Com}', r'\textsc{Pos}', r'\textsc{Obj}', r'\textsc{Neg}']
+    plt.figure()
+    plt.rc('text', usetex=True)
+    plot_confusion_matrix(cm, classes, normalize=True)
+    plt.show()
+    # plt.savefig('final_results', bbox_inches='tight')
+
+    if write:
+        with open('../complicated_results_balanced.tsv'.format(label_setting), 'w') as tsvf:
+            field_names = ['test_setting', 'mean_score'] + ['fold_{}'.format(i) for i in range(K)]
+            writer = DictWriter(tsvf, fieldnames=field_names)
+            writer.writeheader()
+
+            for test_setting, fold_results in results.items():
+                d = {'test_setting': test_setting}
+                d.update({'fold_{}'.format(i): fold_results[i] for i in range(len(fold_results))})
+                d['mean_score'] = np.mean(fold_results)
+                writer.writerow(d)
+
 def analyze_results(all_tweets, fname):
     results = []
     with open(fname + '.csv', 'r') as csvf:
@@ -482,6 +564,33 @@ def initialize(data_file, load_glove=False, use_all_ngrams=False):
     # feature extraction and serialization
     load_tweets_from_csv('../../data/{}'.format(data_file), serialize=True, use_all_for_ngrams=use_all_ngrams)
 
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          cmap=plt.cm.Blues):
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, size=22)
+    plt.yticks(tick_marks, classes, rotation='vertical', size=22)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black",
+                 size=28)
+
+    plt.tight_layout()
+    plt.ylabel(r'\textit{True label}', size=24)
+    plt.xlabel(r'\textit{Predicted label}', size=24)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -514,10 +623,19 @@ if __name__ == '__main__':
         help='intialize the data'
     )
     parser.add_argument(
+        '-c', '--complicated', action='store_true',
+        help='get the complicated results'
+    )
+    parser.add_argument(
         '-A', '--data_analysis', action='store_true',
         help='analyze just the dataset'
     )
     args = parser.parse_args()
+
+    if args.complicated:
+        all_tweets, _ = load_train_test(get_all=True)
+        complicated_results(np.array(all_tweets), write=False)
+        exit(0)
 
     # get the data
     if not args.initialize:
@@ -550,7 +668,7 @@ if __name__ == '__main__':
         big_dataset_analysis(train, test)
 
     elif args.agreement:
-        agreement_level_experiments(np.array(train), label_setting, model=model, do_upper_bound=True)
+        agreement_level_experiments(np.array(train), label_setting, model=LogisticRegression(class_weight='balanced'), do_upper_bound=True, weighted=True)
 
     elif args.testing:
         results = ''
@@ -562,6 +680,7 @@ if __name__ == '__main__':
                 results += basic_testing(train, test, model, label_setting)
         with open('../results/prelim_full_data_results.txt', 'w') as f:
             f.write(results)
+
     else:
         print('Running leave-one-out cross validation with model {} and labels {}...'.format(args.model, label_setting))
         run_leave_one_out(train + test, label_setting, model, args.model)
