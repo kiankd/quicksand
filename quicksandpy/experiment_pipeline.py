@@ -17,7 +17,7 @@ from quicksand.quicksandpy.preprocessing import preprocess_tweets
 from quicksand.quicksandpy.classifier import LogisticRegression, HierClassifier, LinearSVC, RandomForestClassifier
 from quicksand.quicksandpy.tweet import Tweet
 
-
+# utility
 def get_y(tweets, label_setting):
     return np.array([tweet.get_labelling(label_setting) for tweet in tweets])
 
@@ -275,6 +275,7 @@ def basic_testing(train, test, model, label_setting):
 
     model.fit(train_X, train_y)
     preds = model.predict(test_X)
+
     print(get_results(test_y, preds))
 
     print('\nMore results...')
@@ -592,6 +593,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel(r'\textit{True label}', size=24)
     plt.xlabel(r'\textit{Predicted label}', size=24)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -680,9 +682,6 @@ if __name__ == '__main__':
                 results += basic_testing(train, test, model, label_setting)
         with open('../results/prelim_full_data_results.txt', 'w') as f:
             f.write(results)
-
     else:
         print('Running leave-one-out cross validation with model {} and labels {}...'.format(args.model, label_setting))
         run_leave_one_out(train + test, label_setting, model, args.model)
-
-#DONE

@@ -24,6 +24,7 @@ LINEAR_SVM = 'linearsvm'
 RANDOM_FOREST = 'forest'
 GUESSER = 'dummy'
 
+
 # feature sets
 UNIGRAMS = 'unigrams'
 BIGRAMS = 'bigrams'
